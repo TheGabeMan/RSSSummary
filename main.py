@@ -1,5 +1,7 @@
-# Script to import RSS Feeds, then create a summary of the article 
-# from the feed and email that summary
+'''
+Script to import RSS Feeds, then create a summary of the article 
+from the feed and email that summary
+'''
 import os
 import smtplib
 from email.message import EmailMessage
@@ -17,32 +19,21 @@ def main():
     Main function to read RSS feeds, summarize articles, and send emails
     with summaries.
     """
-    rss_feed_url, rss_feed_summary_length = load_feeds_info()
-    if rss_feed_url is None or rss_feed_summary_length is None:
-        return
-
-    feed = read_rss_feed(rss_feed_url)
 
     # Open AI API key
     openai.api_key = os.getenv("OPENAI_API_KEY")
     if not openai.api_key:
         print("Please set OPENAI_API_KEY in your .env file.")
         return
-
-    # Determine summary length based on user input
-    if rss_feed_summary_length == "Short":
-        summary_length = 500
-    elif rss_feed_summary_length == "Medium":
-        summary_length = 1000
-    elif rss_feed_summary_length == ("Long"):
-        summary_length = 1500
-    else:
-        print(
-            "Invalid summary length. Please set RSS_FEED_SUMMARY_LENGTH to Short, Medium, or Long in your .env file."
-        )
+    
+    rss_feed_url, rss_feed_summary_length = load_feeds_info()
+    if rss_feed_url is None or rss_feed_summary_length is None:
         return
 
-    for entry in feed[:3]:
+    feed = read_rss_feed(rss_feed_url)
+    summary_length = get_summary_length(rss_feed_summary_length)
+
+    for entry in feed:
         title = entry.title
         link = entry.link
         published = entry.published
@@ -169,6 +160,21 @@ def read_rss_feed(url):
     feed.entries = filtered_entries
     return feed.entries
 
-
+def get_summary_length(rss_feed_summary_length)
+    '''
+    Determine summary length based on user input
+    '''
+    if rss_feed_summary_length == "Short":
+        return 500
+    elif rss_feed_summary_length == "Medium":
+        return 1000
+    elif rss_feed_summary_length == "Long":
+        return 1500
+    else:
+        print(
+            "Invalid summary length. Please set RSS_FEED_SUMMARY_LENGTH to Short, Medium, or Long in your .env file."
+        )
+        return 1000
+        
 if __name__ == "__main__":
     main()
